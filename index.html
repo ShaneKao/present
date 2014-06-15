@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Present : 0615" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Present</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/ShaneKao/present">View on GitHub</a>
+
+          <h1 id="project_title">Present</h1>
+          <h2 id="project_tagline">0615</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/ShaneKao/present/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/ShaneKao/present/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="practical-machine-learning-prediction-assignment-writeup" class="anchor" href="#practical-machine-learning-prediction-assignment-writeup"><span class="octicon octicon-link"></span></a>Practical Machine Learning Prediction Assignment Writeup</h1>
+
+<p>author: Shane Kao
+date: 2014/06/15</p>
+
+<h1>
+<a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h1>
+
+<p>The goal of your project is to predict the manner in which they did the exercise. This is the <code>classe</code> variable in the training set. You may use any of the other variables to predict with. You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. You will also use your prediction model to predict 20 different test cases.</p>
+
+<h1>
+<a name="variables" class="anchor" href="#variables"><span class="octicon octicon-link"></span></a>Variables</h1>
+
+<p>The following variables to predict with the model.</p>
+
+<pre><code> [1] "gyros_belt_x"      "gyros_belt_y"      "gyros_belt_z"     
+ [4] "accel_belt_x"      "accel_belt_y"      "accel_belt_z"     
+ [7] "magnet_belt_x"     "magnet_belt_y"     "magnet_belt_z"    
+[10] "gyros_arm_x"       "gyros_arm_y"       "gyros_arm_z"      
+[13] "accel_arm_x"       "accel_arm_y"       "accel_arm_z"      
+[16] "magnet_arm_x"      "magnet_arm_y"      "magnet_arm_z"     
+[19] "gyros_dumbbell_x"  "gyros_dumbbell_y"  "gyros_dumbbell_z" 
+[22] "accel_dumbbell_x"  "accel_dumbbell_y"  "accel_dumbbell_z" 
+[25] "magnet_dumbbell_x" "magnet_dumbbell_y" "magnet_dumbbell_z"
+[28] "gyros_forearm_x"   "gyros_forearm_y"   "gyros_forearm_z"  
+[31] "accel_forearm_x"   "accel_forearm_y"   "accel_forearm_z"  
+[34] "magnet_forearm_x"  "magnet_forearm_y"  "magnet_forearm_z" 
+</code></pre>
+
+<h1>
+<a name="machine-learning-algorithm" class="anchor" href="#machine-learning-algorithm"><span class="octicon octicon-link"></span></a>Machine Learning Algorithm</h1>
+
+<p>Training Set: 70%
+Test Set:30 %</p>
+
+<div class="highlight highlight-r"><pre>ind<span class="o">=</span><span class="kp">sample</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="kp">nrow</span><span class="p">(</span>tidy.training<span class="p">),</span>
+           replace<span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span>prob<span class="o">=</span><span class="kt">c</span><span class="p">(</span><span class="m">0.7</span><span class="p">,</span><span class="m">0.3</span><span class="p">))</span>
+trainData<span class="o">=</span>tidy.training<span class="p">[</span>ind<span class="o">==</span><span class="m">1</span><span class="p">,]</span>
+testData<span class="o">=</span>tidy.training<span class="p">[</span>ind<span class="o">==</span><span class="m">2</span><span class="p">,]</span>
+</pre></div>
+
+<p>Use <code>trainData</code> to fit Conditional Inference Trees </p>
+
+<div class="highlight highlight-r"><pre><span class="kn">library</span><span class="p">(</span>party<span class="p">)</span>
+mytree<span class="o">=</span>ctree<span class="p">(</span>classe<span class="o">~</span><span class="m">.</span><span class="p">,</span>data<span class="o">=</span>trainData<span class="p">)</span>
+</pre></div>
+
+<h1>
+<a name="in-sample-error" class="anchor" href="#in-sample-error"><span class="octicon octicon-link"></span></a>In Sample Error</h1>
+
+<div class="highlight highlight-r"><pre><span class="p">(</span>is<span class="o">=</span><span class="kp">table</span><span class="p">(</span>predict<span class="p">(</span>mytree<span class="p">),</span>
+          trainData<span class="o">$</span>classe<span class="p">))</span>
+</pre></div>
+
+<pre><code>
+       A    B    C    D    E
+  A 3681  152   56   74   19
+  B   88 2315  109   76  115
+  C   44   81 2166  130   58
+  D   91   39   41 1920   49
+  E   26   83   50   80 2346
+</code></pre>
+
+<div class="highlight highlight-r"><pre><span class="p">(</span>InSampleError<span class="o">=</span><span class="m">1</span><span class="o">-</span><span class="kp">sum</span><span class="p">(</span><span class="kp">diag</span><span class="p">(</span>is<span class="p">))</span><span class="o">/</span><span class="kp">sum</span><span class="p">(</span>is<span class="p">))</span>
+</pre></div>
+
+<pre><code>[1] 0.1052
+</code></pre>
+
+<h1>
+<a name="out-of-sample-error" class="anchor" href="#out-of-sample-error"><span class="octicon octicon-link"></span></a>Out of Sample Error</h1>
+
+<div class="highlight highlight-r"><pre><span class="p">(</span>os<span class="o">=</span><span class="kp">table</span><span class="p">(</span>predict<span class="p">(</span>mytree<span class="p">,</span>testData<span class="p">),</span>
+          testData<span class="o">$</span>classe<span class="p">))</span>
+</pre></div>
+
+<pre><code>
+       A    B    C    D    E
+  A 1503   62   44   46   15
+  B   65  883   65   35   63
+  C   19   72  815   60   29
+  D   54   37   36  760   42
+  E    9   73   40   35  871
+</code></pre>
+
+<div class="highlight highlight-r"><pre><span class="p">(</span>OutofSampleError<span class="o">=</span><span class="m">1</span><span class="o">-</span><span class="kp">sum</span><span class="p">(</span><span class="kp">diag</span><span class="p">(</span>os<span class="p">))</span><span class="o">/</span><span class="kp">sum</span><span class="p">(</span>os<span class="p">))</span>
+</pre></div>
+
+<pre><code>[1] 0.1572
+</code></pre>
+
+<h1>
+<a name="prediction" class="anchor" href="#prediction"><span class="octicon octicon-link"></span></a>Prediction</h1>
+
+<div class="highlight highlight-r"><pre>f<span class="o">=</span><span class="kr">function</span><span class="p">(</span>x<span class="p">)</span>
+<span class="p">{</span><span class="kp">class</span><span class="p">(</span>testData<span class="p">[,</span>x<span class="p">])}</span>
+<span class="kt">c</span><span class="o">=</span><span class="kp">apply</span><span class="p">(</span><span class="kp">cbind</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">37</span><span class="p">),</span><span class="m">1</span><span class="p">,</span>f<span class="p">)</span>
+tidy.testing<span class="o">=</span>testing<span class="p">[,</span>index<span class="p">]</span>
+tidy.testing<span class="o">$</span>classe<span class="o">=</span>
+        <span class="p">(</span>tidy.training<span class="o">$</span>classe<span class="p">)[</span><span class="m">1</span><span class="o">:</span><span class="m">20</span><span class="p">]</span>
+write.table<span class="p">(</span>tidy.testing<span class="p">,</span><span class="s">"tidy.testing.txt"</span><span class="p">,</span>
+            sep<span class="o">=</span><span class="s">","</span><span class="p">,</span>row.names<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+tidy.testing<span class="o">=</span>read.table<span class="p">(</span><span class="s">"tidy.testing.txt"</span><span class="p">,</span>
+                        sep<span class="o">=</span><span class="s">","</span><span class="p">,</span>header<span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span>colClasses<span class="o">=</span><span class="kt">c</span><span class="p">)</span>
+predict<span class="p">(</span>mytree<span class="p">,</span>tidy.testing<span class="p">)</span>
+</pre></div>
+
+<pre><code> [1] B A C A A E D B A A B C B A E E A B B B
+Levels: A B C D E
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Present maintained by <a href="https://github.com/ShaneKao">ShaneKao</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
